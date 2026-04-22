@@ -1,0 +1,19 @@
+{
+  "name": "evercode-test",
+  "version": "1.0.0",
+  "description": "Test task",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gollwyd/evercode-test.git"
+  },
+  "author": "Viktor Makarov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Gollwyd/evercode-test/issues"
+  },
+  "homepage": "https://github.com/Gollwyd/evercode-test#readme"
+}
