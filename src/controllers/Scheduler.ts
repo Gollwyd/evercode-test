@@ -5,13 +5,13 @@ export class TaskScheduler {
   private logger: Logger;
   constructor(logger: Logger) {
     this.logger = logger;
-    this.logger.log("Scheduler run!");
+    this.logger.info("Scheduler run!");
   }
 
   public scheduleTask = (name: string, interval: number, task: Task) => {
     const logString = `(scheduleTask) ${name}() invoked with interval ${interval} in scheduler`;
     const callBack = () => {
-      this.logger.log(logString);
+      this.logger.debug(logString);
       task.run();
     };
     const timerId = setInterval(callBack, interval);

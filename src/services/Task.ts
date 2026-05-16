@@ -8,6 +8,6 @@ export class Task {
   }
 
   public run = () => {
-    this.logger.log(">> Running task");
+    this.logger.info(">> Running task");
   };
 }
