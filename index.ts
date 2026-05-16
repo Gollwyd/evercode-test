@@ -1,12 +1,3 @@
-import { scheduleTask } from "./scheduler.ts";
-import { log } from "./logger.ts";
+import { firstTaskRunner } from "./src/controllers/FirstTaskRunner.ts";
 
-const firstTaskRunnerFunction = () => {
-  const interval = 10_000;
-  const { name } = firstTaskRunnerFunction;
-  const task = () => log("running");
-  const scheduleObject = scheduleTask(name, interval, task);
-  setTimeout(scheduleObject.stop, 160_000);
-};
-
-firstTaskRunnerFunction();
+firstTaskRunner();
