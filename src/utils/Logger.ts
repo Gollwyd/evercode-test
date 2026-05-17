@@ -33,7 +33,7 @@ const getLogLevelName = (logLevel: LogLevel) => {
   }
 };
 
-const getPrefix = (logLevel: LogLevel, requestId?: string) => {
+export const getPrefix = (logLevel: LogLevel, requestId?: string) => {
   const { appName } = config;
   const time = new Date().toISOString();
   const logLevelName = getLogLevelName(logLevel);
