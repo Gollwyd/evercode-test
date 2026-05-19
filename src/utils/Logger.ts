@@ -8,50 +8,40 @@ export enum LogLevel {
   ERROR = 4,
 }
 
-enum LogLevelName {
-  TRACE = "trace",
-  DEBUG = "debug",
-  INFO = "info",
-  WARN = "warn",
-  ERROR = "error",
-}
-
-const getLogLevelName = (logLevel: LogLevel) => {
-  switch (logLevel) {
-    case LogLevel.TRACE:
-      return LogLevelName.TRACE;
-    case LogLevel.DEBUG:
-      return LogLevelName.DEBUG;
-    case LogLevel.INFO:
-      return LogLevelName.INFO;
-    case LogLevel.WARN:
-      return LogLevelName.WARN;
-    case LogLevel.ERROR:
-      return LogLevelName.ERROR;
-    default:
-      break;
-  }
+const LogLevelName: Record<LogLevel, string> = {
+  [LogLevel.TRACE]: "trace",
+  [LogLevel.DEBUG]: "debug",
+  [LogLevel.INFO]: "info",
+  [LogLevel.WARN]: "warn",
+  [LogLevel.ERROR]: "error",
 };
+
+export interface ILogger {
+  trace(...arg: any): void;
+  debug(...arg: any): void;
+  info(...arg: any): void;
+  warn(...arg: any): void;
+  error(...arg: any): void;
+}
 
 export const getPrefix = (logLevel: LogLevel, requestId?: string) => {
   const { appName } = config;
   const time = new Date().toISOString();
-  const logLevelName = getLogLevelName(logLevel);
+  const logLevelName = LogLevelName[logLevel];
   let prefix = `[${time}] [${logLevelName}] (${appName})`;
   if (requestId) {
-    prefix = `${prefix} ${requestId}`;
+    prefix = `${prefix} [${requestId}]`;
   }
   return prefix + " ";
 };
 
 const getConsoleLog = (logLevel: LogLevel) => {
   if (logLevel === LogLevel.ERROR) {
-    return (...arg: any) => console.error(...arg);
+    return console.error;
   } else if (logLevel === LogLevel.WARN) {
-    return (...arg: any) => console.warn(...arg);
+    return console.warn;
   }
-
-  return (...arg: any) => console.log(...arg);
+  return console.log;
 };
 
 export interface LogContext {

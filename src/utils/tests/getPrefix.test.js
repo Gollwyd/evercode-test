@@ -1,4 +1,4 @@
-import { getPrefix } from "../Logger";
+import { getPrefix, LogLevel } from "../Logger";
 
 describe("getPrefix", () => {
   const time = new Date().toISOString();
@@ -14,11 +14,13 @@ describe("getPrefix", () => {
   const traceId = "123456789";
 
   it("should return correct prefix with traceId", () => {
-    expect(getPrefix(1, traceId)).toBe(
-      `[${time}] [debug] (Evercode Lab App) ${traceId} `,
+    expect(getPrefix(LogLevel.DEBUG, traceId)).toBe(
+      `[${time}] [debug] (Evercode Lab App) [${traceId}] `,
     );
   });
   it("should return correct prefix without traceId", () => {
-    expect(getPrefix(1)).toBe(`[${time}] [debug] (Evercode Lab App) `);
+    expect(getPrefix(LogLevel.ERROR)).toBe(
+      `[${time}] [error] (Evercode Lab App) `,
+    );
   });
 });

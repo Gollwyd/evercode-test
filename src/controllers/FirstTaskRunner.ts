@@ -1,12 +1,12 @@
-import { Task } from "../services/Task";
-import { Logger } from "../utils/Logger";
+import { ITask } from "../services/Task";
+import { ILogger, Logger } from "../utils/Logger";
 import { TaskScheduler } from "./Scheduler";
 
-export const firstTaskRunner = () => {
-  const { name } = firstTaskRunner;
-  const interval = 10_000;
-  const logger = new Logger();
-  const task = new Task(logger);
-  const scheduler = new TaskScheduler(logger);
+export const firstTaskRunner = (
+  task: ITask<ILogger>,
+  scheduler: TaskScheduler,
+  interval: number = 10_000,
+) => {
+  const name = "firstTaskRunner";
   scheduler.scheduleTask(name, interval, task);
 };
