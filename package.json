@@ -19,11 +19,18 @@
   "bugs": {
     "url": "https://github.com/Gollwyd/evercode-test/issues"
   },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  },
   "homepage": "https://github.com/Gollwyd/evercode-test#readme",
   "devDependencies": {
     "@babel/core": "7.29.0",
     "@babel/preset-env": "7.29.5",
     "@babel/preset-typescript": "7.28.5",
+    "@types/express": "^5.0.6",
     "@types/jest": "30.0.0",
     "@types/node": "25.8.0",
     "eslint": "10.4.0",
@@ -32,8 +39,12 @@
     "globals": "17.6.0",
     "jest": "30.4.2",
     "prettier": "3.8.3",
+    "supertest": "^7.2.2",
     "tsx": "4.22.0",
     "typescript": "6.0.3",
     "typescript-eslint": "8.59.3"
+  },
+  "dependencies": {
+    "express": "5.2.1"
   }
 }

@@ -1,9 +1,8 @@
 import { ITask } from "../services/Task";
-import { ILogger, Logger } from "../utils/Logger";
 import { TaskScheduler } from "./Scheduler";
 
 export const firstTaskRunner = (
-  task: ITask<ILogger>,
+  task: ITask,
   scheduler: TaskScheduler,
   interval: number = 10_000,
 ) => {
