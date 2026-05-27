@@ -164,10 +164,80 @@
           }
         }
       }
+    },
+    "/price/{currency}": {
+      "get": {
+        "summary": "Get price",
+        "parameters": [
+          {
+            "name": "currency",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "EUR"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Currency found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Price"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Currency not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "PriceItem": {
+        "type": "object",
+        "required": ["symbol", "price"],
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Ticker pair",
+            "example": "EURETH"
+          },
+          "price": {
+            "type": "string",
+            "description": "Price",
+            "example": "0.01675"
+          }
+        }
+      },
+      "PriceList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PriceItem"
+        }
+      },
       "Currency": {
         "type": "object",
         "properties": {

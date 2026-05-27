@@ -38,6 +38,8 @@ export class ExpressServer {
     this.server.put("/currency/:id", currencyService.updateCurrency);
     this.server.delete("/currency/:id", currencyService.deleteCurrency);
 
+    this.server.get("/price/:currency", currencyService.getPrice);
+
     this.server.listen(config.port, () => {
       this.logger.info(`Server is running on http://localhost:${config.port}`);
     });
