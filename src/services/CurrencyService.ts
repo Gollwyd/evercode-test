@@ -3,19 +3,21 @@ import { v4 } from "uuid";
 import { ILogger } from "../utils/Logger";
 import axios from "axios";
 import { AppError } from "../errors/AppError";
+import { Currency, IStorage } from "../storages/CurrencyStorage";
 
-type Currency = { id: string; name: string; ticker: string };
+const CURRENCY_ENDPOINT = "https://api.binance.com/api/v3/ticker/price";
 
+const isString = (arg?: any): arg is string => typeof arg === "string";
 export class CurrencyService {
-  currencies: Array<Currency> = [];
   logger: ILogger;
+  currencyStorage: IStorage<Currency>;
 
-  constructor(logger: ILogger) {
+  constructor(logger: ILogger, currencyStorage: IStorage<Currency>) {
     this.logger = logger;
+    this.currencyStorage = currencyStorage;
   }
 
   createCurrency = (req: Request, res: Response) => {
-    console.log(req);
     const { name, ticker } = req.body;
 
     if (!name || !ticker) {
@@ -23,14 +25,20 @@ export class CurrencyService {
     }
 
     const currency = { id: v4(), name, ticker };
-    this.currencies.push(currency);
+    const currencyRes = this.currencyStorage.create(currency);
     res.status(201).json(currency);
   };
 
   getCurrency = (req: Request, res: Response) => {
-    const currency = this.currencies.find((c) => c.id == req.params.id);
-    if (!currency) return res.status(404).json({ error: "Currency not found" });
-    res.json(currency);
+    const { id } = req.params;
+    if (!isString(id)) {
+      return res.status(400).json({ error: "Id required" });
+    }
+    const currency = this.currencyStorage.get(id);
+    if (!currency) {
+      return res.status(404).json({ error: "Currency not found" });
+    }
+    res.status(200).json(currency);
   };
 
   getPrice = async (req: Request, res: Response) => {
@@ -38,19 +46,14 @@ export class CurrencyService {
     if (!currency) {
       return res.status(404).json({ error: "Currency cant be empty" });
     }
-    const isTickerExist = !!this.currencies.find(
-      (c) => c.ticker == req.params.currency,
-    );
+    const isTickerExist = !!this.currencyStorage.find(currency);
     if (!isTickerExist) {
       return res.status(404).json({ error: "Currency not found" });
     }
     try {
-      const response = await axios.get(
-        "https://api.binance.com/api/v3/ticker/price",
-        {
-          timeout: 5000,
-        },
-      );
+      const response = await axios.get(CURRENCY_ENDPOINT, {
+        timeout: 5000,
+      });
       if (!Array.isArray(response.data)) {
         throw new AppError("Wrong data received");
       }
@@ -71,22 +74,34 @@ export class CurrencyService {
 
   updateCurrency = (req: Request, res: Response) => {
     const { id } = req.params;
-    const index = this.currencies.findIndex((c) => c.id === id);
+    if (!isString(id)) {
+      return res.status(400).json({ error: "Id required" });
+    }
+    const currencyInDB = this.currencyStorage.get(id);
 
-    if (index === -1)
+    if (!currencyInDB)
       return res.status(404).json({ error: "Currency not found" });
 
     const { name, ticker } = req.body;
-    this.currencies[index] = { ...this.currencies[index], name, ticker };
-    res.json(this.currencies[index]);
+    const currency = { ...currencyInDB, name, ticker };
+    const newCurrency = this.currencyStorage.updateAndGet(currency);
+    if (!newCurrency) {
+      return res.status(502).json({ error: "Internal Error" });
+    }
+    res.status(200).json(newCurrency);
   };
 
   deleteCurrency = (req: Request, res: Response) => {
-    const index = this.currencies.findIndex((c) => c.id === req.params.id);
-    if (index === -1)
-      return res.status(404).json({ error: "Currency not found" });
+    const { id } = req.params;
+    if (!isString(id)) {
+      return res.status(400).json({ error: "Id required" });
+    }
 
-    this.currencies.splice(index, 1);
+    const result = this.currencyStorage.getAndDelete(id);
+    if (!result) {
+      return res.status(404).json({ error: "Currency not found" });
+    }
+
     res.status(204).send();
   };
 }

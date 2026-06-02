@@ -48,7 +48,7 @@ export interface LogContext {
   requestId?: string;
 }
 
-export class Logger {
+export class Logger implements ILogger {
   private log(level: LogLevel, message: string, requestId?: string) {
     if (level < config.logLevel) {
       return;
