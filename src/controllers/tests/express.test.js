@@ -3,13 +3,25 @@ import { ExpressServer } from "../ExpressServer";
 import { Logger } from "../../utils/Logger";
 import { CurrencyService } from "../../services/CurrencyService";
 import "dotenv/config";
+import Database from "better-sqlite3";
+import { CurrencyStorage } from "../../storages/CurrencyStorage";
 
 const token = process.env.JWT_TOKEN;
+let server;
+beforeAll(() => {
+  const logger = new Logger();
+  const db = new Database(":memory:", {
+    verbose: (...arg) => logger.info(...arg),
+  });
+
+  const сurrencyStorage = new CurrencyStorage(logger, db);
+  const currencyService = new CurrencyService(logger, сurrencyStorage);
+  const { server: expressServer } = new ExpressServer(logger, currencyService);
+
+  server = expressServer;
+});
 
 describe("status endpoint", () => {
-  const logger = new Logger();
-  const currencyService = new CurrencyService(logger);
-  const { server } = new ExpressServer(logger, currencyService);
   it("should return Ok", async () => {
     const res = await request(server).get("/status").send();
     expect(res.text).toEqual("Ok");
@@ -17,10 +29,6 @@ describe("status endpoint", () => {
 });
 
 describe("currency CRUD flow", () => {
-  const logger = new Logger();
-  const currencyService = new CurrencyService(logger);
-  const { server } = new ExpressServer(logger, currencyService);
-
   let createdCurrency;
 
   it("should create currency", async () => {

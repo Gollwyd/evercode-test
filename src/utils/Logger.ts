@@ -74,5 +74,3 @@ export class Logger implements ILogger {
     this.log(LogLevel.ERROR, msg, requestId);
   }
 }
-
-export const logger = new Logger();

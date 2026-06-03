@@ -3,10 +3,7 @@ import Database from "better-sqlite3";
 import { ILogger } from "../utils/Logger";
 
 export interface IStorage<T> {
-  create: (a: T) => void;
   get: (id: string) => T;
-  update: (c: T) => void;
-  delete: (id: string) => void;
   find: (ticker: string) => T;
 
   updateAndGet: (c: T) => T;
@@ -71,9 +68,9 @@ export class CurrencyStorage implements IStorage<Currency> {
     });
   }
 
-  create = (currency: Currency) => this.createStmt.run(currency);
+  private create = (currency: Currency) => this.createStmt.run(currency);
   get = (id: string): Currency => this.getStmt.get(id) as Currency;
   find = (ticker: string): Currency => this.findStmt.get(ticker) as Currency;
-  update = (currency: Currency) => this.updateStmt.run(currency);
-  delete = (id: string) => this.deleteStmt.run(id);
+  private update = (currency: Currency) => this.updateStmt.run(currency);
+  private delete = (id: string) => this.deleteStmt.run(id);
 }

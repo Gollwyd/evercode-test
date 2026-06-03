@@ -25,8 +25,8 @@ export class CurrencyService {
     }
 
     const currency = { id: v4(), name, ticker };
-    const currencyRes = this.currencyStorage.create(currency);
-    res.status(201).json(currency);
+    const currencyRes = this.currencyStorage.createAndGet(currency);
+    res.status(201).json(currencyRes);
   };
 
   getCurrency = (req: Request, res: Response) => {
