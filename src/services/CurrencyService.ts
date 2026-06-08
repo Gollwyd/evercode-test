@@ -4,17 +4,22 @@ import { ILogger } from "../utils/Logger";
 import axios from "axios";
 import { AppError } from "../errors/AppError";
 import { Currency, IStorage } from "../storages/CurrencyStorage";
-
-const CURRENCY_ENDPOINT = "https://api.binance.com/api/v3/ticker/price";
+import { PriceStorage } from "../storages/PriceStorage";
 
 const isString = (arg?: any): arg is string => typeof arg === "string";
 export class CurrencyService {
   logger: ILogger;
   currencyStorage: IStorage<Currency>;
+  priceStorage: PriceStorage;
 
-  constructor(logger: ILogger, currencyStorage: IStorage<Currency>) {
+  constructor(
+    logger: ILogger,
+    currencyStorage: IStorage<Currency>,
+    priceStorage: PriceStorage,
+  ) {
     this.logger = logger;
     this.currencyStorage = currencyStorage;
+    this.priceStorage = priceStorage;
   }
 
   createCurrency = (req: Request, res: Response) => {
@@ -51,21 +56,13 @@ export class CurrencyService {
       return res.status(404).json({ error: "Currency not found" });
     }
     try {
-      const response = await axios.get(CURRENCY_ENDPOINT, {
-        timeout: 5000,
-      });
-      if (!Array.isArray(response.data)) {
-        throw new AppError("Wrong data received");
-      }
-      const array = response.data as Array<{ symbol: string; price: string }>;
-
-      const result = array.filter(({ symbol }) => symbol.startsWith(currency));
+      const result = this.priceStorage.find(currency);
       res.json(result);
     } catch (e) {
       if (e instanceof AppError) {
         this.logger.error(e.message);
       }
-      this.logger.error("Internal error");
+      this.logger.error("Internal error", e);
       return res.status(500).json({ error: "Internal error" });
     }
 

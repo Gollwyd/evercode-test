@@ -26,6 +26,7 @@ export class CurrencyStorage implements IStorage<Currency> {
   updateStmt: Database.Statement;
   deleteStmt: Database.Statement;
   createStmt: Database.Statement;
+  getAllStmt: Database.Statement;
 
   constructor(logger: ILogger, db: Database.Database) {
     this.logger = logger;
@@ -38,6 +39,7 @@ export class CurrencyStorage implements IStorage<Currency> {
   `);
 
     this.getStmt = this.db.prepare("SELECT * FROM currencies WHERE id = ?");
+    this.getAllStmt = this.db.prepare("SELECT * FROM currencies");
     this.createStmt = this.db.prepare(
       "INSERT INTO currencies (id, name, ticker) VALUES (@id, @name, @ticker)",
     );
@@ -71,6 +73,8 @@ export class CurrencyStorage implements IStorage<Currency> {
   private create = (currency: Currency) => this.createStmt.run(currency);
   get = (id: string): Currency => this.getStmt.get(id) as Currency;
   find = (ticker: string): Currency => this.findStmt.get(ticker) as Currency;
+  getTickers = () =>
+    this.getAllStmt.all().map((c) => (c as Currency).ticker) as string[];
   private update = (currency: Currency) => this.updateStmt.run(currency);
   private delete = (id: string) => this.deleteStmt.run(id);
 }
