@@ -10,7 +10,7 @@ import { UpdatePriceTask } from "./src/services/UpdatePriceTask.ts";
 import { PriceStorage } from "./src/storages/PriceStorage.ts";
 
 const INTERVAL = 10_000;
-const UPDATE_PRICE_INTERVAL = 300_000;
+const UPDATE_PRICE_INTERVAL = 60_000;
 const DB_NAME = "currency.db";
 
 const logger = new Logger();
