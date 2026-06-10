@@ -3,10 +3,16 @@ import { ILogger } from "../utils/Logger";
 
 export class TaskScheduler {
   private logger: ILogger;
+  private intervalIds = [] as NodeJS.Timeout[];
   constructor(logger: ILogger) {
     this.logger = logger;
     this.logger.info("Scheduler run!");
+    process.on("SIGINT", this.shutdown);
+    process.on("SIGTERM", this.shutdown);
   }
+  private shutdown = () => {
+    this.intervalIds.forEach(clearInterval);
+  };
 
   public scheduleTask = (name: string, interval: number, task: ITask) => {
     const logString = `(scheduleTask) ${name}() invoked with interval ${interval} in scheduler`;
@@ -19,7 +25,8 @@ export class TaskScheduler {
         this.logger.error(`Error executing task "${name}": ${message}`);
       }
     };
-    const timerId = setInterval(callBack, interval);
-    return { stop: () => clearInterval(timerId) };
+    const intervalId = setInterval(callBack, interval);
+    this.intervalIds.push(intervalId);
+    return { stop: () => clearInterval(intervalId) };
   };
 }
