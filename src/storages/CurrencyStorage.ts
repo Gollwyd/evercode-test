@@ -68,6 +68,8 @@ export class CurrencyStorage implements IStorage<Currency> {
 
       return true;
     });
+
+    this.logger.info("CurrencyStorage ready!");
   }
 
   private create = (currency: Currency) => this.createStmt.run(currency);

@@ -41,6 +41,7 @@ export class PriceStorage implements IPriceStorage {
         this.create(item);
       }
     });
+    this.logger.info("PriceStorage ready!");
   }
 
   private create = (price: Price) => this.createStmt.run(price);
