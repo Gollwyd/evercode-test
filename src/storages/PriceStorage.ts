@@ -4,7 +4,12 @@ import { ILogger } from "../utils/Logger";
 
 export type Price = { symbol: string; price: string };
 
-export class PriceStorage {
+export interface IPriceStorage {
+  find: (symbol: string) => Price[];
+  updateAllRecords: (p: Price[]) => void;
+}
+
+export class PriceStorage implements IPriceStorage {
   private db: Database.Database;
   private logger: ILogger;
 
