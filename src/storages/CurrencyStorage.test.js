@@ -1,5 +1,6 @@
 import Database from "better-sqlite3";
 import { CurrencyStorage } from "./CurrencyStorage";
+import { Logger } from "../utils/Logger";
 
 let сurrencyStorage;
 
@@ -7,7 +8,8 @@ beforeAll(async () => {
   const db = new Database(":memory:", {
     verbose: console.log,
   });
-  сurrencyStorage = new CurrencyStorage(console.log, db);
+  const logger = new Logger();
+  сurrencyStorage = new CurrencyStorage(logger, db);
 });
 
 describe("сurrencyStorage", () => {
