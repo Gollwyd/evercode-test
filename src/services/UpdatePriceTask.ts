@@ -25,11 +25,23 @@ export class UpdatePriceTask implements ITask {
     this.currencyStorage = currencyStorage;
   }
 
-  public run = async () => {
+  public run = async (times = 0) => {
     this.logger.info("Running UpdatePriceTask");
-    const response = await axios.get(CURRENCY_ENDPOINT, {
-      timeout: 5000,
-    });
+    let response;
+    try {
+      response = await axios.get(CURRENCY_ENDPOINT, {
+        timeout: 5000,
+      });
+    } catch {
+      if (times > 5) {
+        this.logger.error("Impossible perform UpdateTask");
+      } else {
+        this.logger.warn(`Error on request currency, retry count: ${times}`);
+        this.run(++times);
+      }
+      return;
+    }
+
     if (!Array.isArray(response.data)) {
       throw new AppError("Wrong data received");
     }
