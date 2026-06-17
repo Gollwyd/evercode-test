@@ -5,17 +5,25 @@ import { CurrencyService } from "../../services/CurrencyService";
 import "dotenv/config";
 import Database from "better-sqlite3";
 import { CurrencyStorage } from "../../storages/CurrencyStorage";
+import { PriceStorage } from "../../storages/PriceStorage";
 
 const token = process.env.JWT_TOKEN;
 let server;
+let priceStorage;
+let сurrencyStorage;
 beforeAll(() => {
   const logger = new Logger();
   const db = new Database(":memory:", {
     verbose: (...arg) => logger.info(...arg),
   });
 
-  const сurrencyStorage = new CurrencyStorage(logger, db);
-  const currencyService = new CurrencyService(logger, сurrencyStorage);
+  сurrencyStorage = new CurrencyStorage(logger, db);
+  priceStorage = new PriceStorage(logger, db);
+  const currencyService = new CurrencyService(
+    logger,
+    сurrencyStorage,
+    priceStorage,
+  );
   const { server: expressServer } = new ExpressServer(logger, currencyService);
 
   server = expressServer;
@@ -25,6 +33,65 @@ describe("status endpoint", () => {
   it("should return Ok", async () => {
     const res = await request(server).get("/status").send();
     expect(res.text).toEqual("Ok");
+  });
+});
+
+describe("price endpoint", () => {
+  it("should return price for created prices", async () => {
+    сurrencyStorage.create({ id: "fsdf", name: "Bitcoin", ticker: "BTC" });
+    priceStorage.create({ symbol: "BTCTUSD", price: "74718" });
+
+    const res = await request(server)
+      .get("/price/BTC")
+      .set("Authorization", `Bearer ${token}`)
+      .send();
+    expect(res.body).toEqual([{ symbol: "BTCTUSD", price: "74718" }]);
+  });
+
+  it("should return price only for compatible ticker", async () => {
+    priceStorage.create({ symbol: "BTCTDD", price: "78888" });
+    priceStorage.create({ symbol: "BCCCTUSD", price: "74718" });
+    const res = await request(server)
+      .get("/price/BTC")
+      .set("Authorization", `Bearer ${token}`)
+      .send();
+    expect(res.body.length).toEqual(2);
+  });
+});
+
+describe("history endpoint", () => {
+  beforeAll(() => {
+    jest.useFakeTimers();
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+  it("should return price for created prices", async () => {
+    const time1 = new Date(1705312800000);
+    const time2 = new Date(1736935200000);
+    jest.setSystemTime(time1);
+    priceStorage.addToHistory({
+      symbol: "BTCTUSD",
+      price: "74718",
+      date: time1.getTime(),
+    });
+    jest.setSystemTime(time1);
+    priceStorage.addToHistory({
+      symbol: "BTCTUSD",
+      price: "747888",
+      date: time2.getTime(),
+    });
+    const res = await request(server)
+      .get("/history/BTC")
+      .set("Authorization", `Bearer ${token}`)
+      .send();
+    expect(res.body).toEqual({
+      BTCTUSD: [
+        { date: 1705312800000, price: "74718" },
+        { date: 1736935200000, price: "747888" },
+      ],
+    });
   });
 });
 

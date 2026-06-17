@@ -39,6 +39,7 @@ export class ExpressServer {
     this.server.delete("/currency/:id", currencyService.deleteCurrency);
 
     this.server.get("/price/:currency", currencyService.getPrice);
+    this.server.get("/history/:currency", currencyService.getHistory);
 
     this.server.listen(config.port, () => {
       this.logger.info(`Server is running on http://localhost:${config.port}`);

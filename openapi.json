@@ -165,8 +165,58 @@
         }
       }
     },
+    "/history/{currency}": {
+      "get": {
+        "tags": ["History"],
+        "summary": "Get history",
+        "parameters": [
+          {
+            "name": "currency",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "EUR"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Currency found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriceHistoryList"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Currency not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/price/{currency}": {
       "get": {
+        "tags": ["Price"],
         "summary": "Get price",
         "parameters": [
           {
@@ -185,7 +235,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Price"
+                  "$ref": "#/components/schemas/PriceItem"
                 }
               }
             }
@@ -216,6 +266,28 @@
   },
   "components": {
     "schemas": {
+      "PriceHistoryItem": {
+        "type": "object",
+        "required": ["symbol"],
+        "properties": {
+          "symbol": {
+            "type": "object",
+            "required": ["price", "date"],
+            "properties": {
+              "date": {
+                "type": "string",
+                "description": "TimeStamp",
+                "example": "123343443"
+              },
+              "price": {
+                "type": "string",
+                "description": "Price",
+                "example": "0.01675"
+              }
+            }
+          }
+        }
+      },
       "PriceItem": {
         "type": "object",
         "required": ["symbol", "price"],
@@ -236,6 +308,12 @@
         "type": "array",
         "items": {
           "$ref": "#/components/schemas/PriceItem"
+        }
+      },
+      "PriceHistoryList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PriceHistoryItem"
         }
       },
       "Currency": {

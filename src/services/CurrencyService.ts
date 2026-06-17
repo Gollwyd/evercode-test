@@ -46,6 +46,29 @@ export class CurrencyService {
     res.status(200).json(currency);
   };
 
+  getHistory = async (req: Request, res: Response) => {
+    const currency = req.params.currency as string;
+    if (!currency) {
+      return res.status(404).json({ error: "Currency cant be empty" });
+    }
+    const isTickerExist = !!this.currencyStorage.find(currency);
+    if (!isTickerExist) {
+      return res.status(404).json({ error: "Currency not found" });
+    }
+    try {
+      const result = this.priceStorage.getHistory(currency);
+      res.json(result);
+    } catch (e) {
+      if (e instanceof AppError) {
+        this.logger.error(e.message);
+      }
+      this.logger.error("Internal error", e);
+      return res.status(500).json({ error: "Internal error" });
+    }
+
+    if (!currency) res.json(currency);
+  };
+
   getPrice = async (req: Request, res: Response) => {
     const currency = req.params.currency as string;
     if (!currency) {
